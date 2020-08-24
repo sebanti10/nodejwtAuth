@@ -1,6 +1,5 @@
 const dotenv = require('dotenv').config();
 const express = require('express');
-const fetch = require('node-fetch');
 const http = require('http');
 const jwt = require('jsonwebtoken');
 const runMiddleware = require('run-middleware');
@@ -12,7 +11,7 @@ const { user, cacheDuration } = require('../constants');
 runMiddleware(app);
 
 //secret key information stored for caching
-let secretKeyInfo = {}
+let accessKeyInfo = {}
 
 //middleware for /verify route 
 const authenticateToken = (req, res, next) => {
@@ -49,19 +48,19 @@ const generateAccessToken = (user) => jwt.sign(user, process.env.ACCESS_TOKEN_SE
 const validateKey = () => {
 
     let currentTime = Date.now();
-    let secretKey;
+    let accessKey;
 
     //generates a secret key with the current time stamp
     //if there is no previous token stored or the token has expired
-    if ((isEmpty(secretKeyInfo))
-    	|| currentTime - values(secretKeyInfo)[0] > cacheDuration
+    if ((isEmpty(accessKeyInfo))
+    	|| currentTime - values(accessKeyInfo)[0] > cacheDuration
     ) {
     	//fetches the secret key from a public endpoint
-    	app.runMiddleware('/secretKey', (_, body) => secret_key = body);
-        secretKeyInfo.secret_key = currentTime;
+    	app.runMiddleware('/access-key', (_, body) => accessKey = body);
+        accessKeyInfo[accessKey] = currentTime;
     }
     //if the token has not expired
-    return keys(secretKeyInfo)[0];
+    return keys(accessKeyInfo)[0];
 };
 
 module.exports = {

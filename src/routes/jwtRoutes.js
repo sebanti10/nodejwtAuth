@@ -5,9 +5,9 @@ const verify = (req, res) => {
 	res.sendStatus(200);
 };
 
-const secretKey = (req,res) => res.send(process.env.ACCESS_TOKEN_SECRET);
+const accessKey = (req,res) => res.send(process.env.ACCESS_TOKEN_SECRET);
 
 module.exports = {
 	verify,
-	secretKey,
+	accessKey,
 };
