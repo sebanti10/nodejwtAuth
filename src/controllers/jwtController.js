@@ -67,15 +67,12 @@ function validateKey(){
     //generates a secret key with the current time stamp
     //if there is no previous token stored or the token has expired
     if((_.isEmpty(secret_key_info)) || currentTime - _.values(secret_key_info)[0] > duration*1000){
-        
-        //console.log("in if block....", secret_key_info)
 
         //fetches the secret key from a public endpoint
         http.get('http://localhost:3000/token', (res) => {
 		    res.setEncoding('utf8')
 		    res.on('data', function (body) {
 		        let secret_key = JSON.parse(body).ACCESS_TOKEN_SECRET
-		        //console.log(secret_key)
 		    })
 		})
         secret_key_info.secret_key = currentTime
