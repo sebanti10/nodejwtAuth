@@ -1,87 +1,70 @@
-const dotenv = require('dotenv')
-const express = require('express')
-const jwt = require('jsonwebtoken')
-const _ = require('lodash')
-const cors = require('cors')
-const fetch = require('node-fetch')
-const http = require('http')
+const dotenv = require('dotenv').config();
+const express = require('express');
+const fetch = require('node-fetch');
+const http = require('http');
+const jwt = require('jsonwebtoken');
+const runMiddleware = require('run-middleware');
+const { isEmpty, values, keys } = require('lodash');
 
+const app = require('../../index');
+const { user, cacheDuration } = require('../constants');
 
-//user details
-const user = { name: 'ABC' }
+runMiddleware(app);
 
 //secret key information stored for caching
-let secret_key_info = {}
+let secretKeyInfo = {}
 
-//cache duation
-const duration = 10
-
-
-//configuration for the .env file
-dotenv.config()
-
-
-//middleware for /api route 
-const authenticateToken = function (req, res, next) {
-
-	//to generate access token
-	/*const token = generateAccessToken(user)
-	console.log(token)*/
+//middleware for /verify route 
+const authenticateToken = (req, res, next) => {
 
 	try {
 		//to verify the signature once the access token is available 
-		const authHeader = req.headers['authorization']
-		const token = authHeader && authHeader.split(' ')[1]
+		const authHeader = req.headers['authorization'];
+		const token = authHeader && authHeader.split(' ')[1];
 
 		//if no authorization header or token found returns 'unauthorized'
-		if(token == null)
-			return res.sendStatus(401).end()
+		if (token == null)
+			return res.sendStatus(401).end();
 
 		//validates the secret key and provides caching for a given duration
-		validateKey();
+		const apiKey = validateKey();
 
 		//verifies the jwt token
-		jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-			if(err)
-				return res.sendStatus(403).end()
-			req.user = user
-			next()
+		jwt.verify(token, apiKey, (err, user) => {
+			if (err)
+				return res.sendStatus(403).end();
+			req.user = user;
+			next();
 		})
-	} catch(err) {
-		console.log(err)
-		res.sendStatus(403).end()
+	} catch (err) {
+		res.sendStatus(400).end();
 	}
-}
+	return true;
+};
 
 //generates access token provided the user details and secret key
-function generateAccessToken(user) {
-	return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET)
-}
-
+const generateAccessToken = (user) => jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
 
 //validates the secret key
-function validateKey(){
+const validateKey = () => {
 
-    let currentTime = Date.now()
+    let currentTime = Date.now();
+    let secretKey;
 
     //generates a secret key with the current time stamp
     //if there is no previous token stored or the token has expired
-    if((_.isEmpty(secret_key_info)) || currentTime - _.values(secret_key_info)[0] > duration*1000){
-
-        //fetches the secret key from a public endpoint
-        http.get('http://localhost:3000/token', (res) => {
-		    res.setEncoding('utf8')
-		    res.on('data', function (body) {
-		        let secret_key = JSON.parse(body).ACCESS_TOKEN_SECRET
-		    })
-		})
-        secret_key_info.secret_key = currentTime
+    if ((isEmpty(secretKeyInfo))
+    	|| currentTime - values(secretKeyInfo)[0] > cacheDuration
+    ) {
+    	//fetches the secret key from a public endpoint
+    	app.runMiddleware('/secretKey', (_, body) => secret_key = body);
+        secretKeyInfo.secret_key = currentTime;
     }
     //if the token has not expired
-    return _.keys(secret_key_info)[0]
-}
-
+    return keys(secretKeyInfo)[0];
+};
 
 module.exports = {
-	authenticateToken
-}
+	authenticateToken,
+	generateAccessToken,
+};

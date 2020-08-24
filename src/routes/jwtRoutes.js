@@ -1,16 +1,13 @@
-const express = require("express")
-
+const express = require("express");
 
 const verify = (req, res) => {
-	res.sendStatus(200)
-}
+	res.header("Access-Control-Allow-Origin", "*");
+	res.sendStatus(200);
+};
 
-const token = (req,res) => {
-	res.json({'ACCESS_TOKEN_SECRET': process.env.ACCESS_TOKEN_SECRET})
-}
-
+const secretKey = (req,res) => res.send(process.env.ACCESS_TOKEN_SECRET);
 
 module.exports = {
 	verify,
-	token
-}
+	secretKey,
+};

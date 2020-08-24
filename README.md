@@ -19,9 +19,9 @@ nodejwtAuth
 |--- index.js - the entry point
 |--- src
 		|--- controllers - controlls authorization and verification
-				|--- jwtController.js
+			|--- jwtController.js
 		|--- routes - contains all the routes
-				|--- jwtRoutes.js
+			|--- jwtRoutes.js
 |--- package.json
 |--- package-lock.json
 ```
