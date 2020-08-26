@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
-    "start2": "nodemon index2.js",
-    "test": "mocha"
+    "test": "mocha index.test.js",
+    "lint": "eslint **.js"
   },
   "keywords": [],
   "author": "",
@@ -21,5 +21,12 @@
     "lodash": "^4.17.20",
     "mocha": "^8.1.1",
     "run-middleware": "^0.9.10"
+  },
+  "devDependencies": {
+    "eslint": "^7.7.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-prettier": "^3.1.4"
   }
 }

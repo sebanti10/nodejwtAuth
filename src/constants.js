@@ -1,8 +1,8 @@
 const constants = {
-	user: { name: 'ABC' },
-	cacheDuration: 0*1000,
+  user: { name: 'Dummy' },
+  cacheDuration: 10 * 1000,
 };
 
 module.exports = {
-	constants
+  constants,
 };
